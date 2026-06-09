@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+
+  mariadb-azri:
+    build:
+      context: .
+      dockerfile: mariadb.Containerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: perpustakaan_sekolah
+      MYSQL_USER: azri
+      MYSQL_PASSWORD: azri123
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  php-apache-azri:
+    build:
+      context: .
+      dockerfile: php-apache.Containerfile
+    volumes:
+      - ./web_perpus_sekolah:/var/www/html:Z
+    ports:
+      - "8000:80"
+    depends_on:
+      - mariadb-azri
+
+  phpmyadmin-azri:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mariadb-azri
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8001:80"
+    depends_on:
+      - mariadb-azri
+
+volumes:
+  mariadb_data:
